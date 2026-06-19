@@ -633,6 +633,26 @@ public class GeyserImpl implements GeyserApi, EventRegistrar {
         isReloading = false;
     }
 
+    public void hotreloadGeyser(boolean veryHot) {
+        ResourcePackLoader.clear();
+        if (veryHot) {
+            getLogger().info("Geyser is (very)hotreloading!");
+            Registries.load();
+
+            BlockRegistries.populate();
+            Registries.populate();
+
+            RegistryCache.init();
+            Registries.RESOURCE_PACKS.load();
+            for (GeyserSession session : sessionManager.getAllSessions()) {
+                session.transfer("be.visantara.com", 19132); // won't bother making configs
+            }
+        } else {
+            getLogger().info("Geyser is hotreloading!");
+            Registries.RESOURCE_PACKS.load();
+        }
+    }
+
     /**
      * Returns false if this Geyser instance is running in an IDE. This only needs to be used in cases where files
      * expected to be in a jarfile are not present.

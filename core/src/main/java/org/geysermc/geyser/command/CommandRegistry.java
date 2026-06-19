@@ -50,11 +50,13 @@ import org.geysermc.geyser.command.defaults.DumpCommand;
 import org.geysermc.geyser.command.defaults.ExtensionsCommand;
 import org.geysermc.geyser.command.defaults.GameruleCommand;
 import org.geysermc.geyser.command.defaults.HelpCommand;
+import org.geysermc.geyser.command.defaults.HotReloadCommand;
 import org.geysermc.geyser.command.defaults.ListCommand;
 import org.geysermc.geyser.command.defaults.OffhandCommand;
 import org.geysermc.geyser.command.defaults.PingCommand;
 import org.geysermc.geyser.command.defaults.QuickActionsCommand;
 import org.geysermc.geyser.command.defaults.ReloadCommand;
+import org.geysermc.geyser.command.defaults.ReloadMappingsCommand;
 import org.geysermc.geyser.command.defaults.SettingsCommand;
 import org.geysermc.geyser.command.defaults.StatisticsCommand;
 import org.geysermc.geyser.command.defaults.StopCommand;
@@ -160,6 +162,8 @@ public class CommandRegistry implements EventRegistrar {
 
         registerBuiltInCommand(new ListCommand(geyser, "list", "geyser.commands.list.desc", "geyser.command.list"));
         registerBuiltInCommand(new ReloadCommand(geyser, "reload", "geyser.commands.reload.desc", "geyser.command.reload"));
+        registerBuiltInCommand(new HotReloadCommand(geyser, "hotreload", "geyser.commands.reload.desc", "geyser.command.reload"));
+        registerBuiltInCommand(new ReloadMappingsCommand(geyser, "mappingsreload", "geyser.commands.reload.desc", "geyser.command.reload"));
         registerBuiltInCommand(new OffhandCommand("offhand", "geyser.commands.offhand.desc", "geyser.command.offhand"));
         registerBuiltInCommand(new DumpCommand(geyser, "dump", "geyser.commands.dump.desc", "geyser.command.dump"));
         registerBuiltInCommand(new VersionCommand(geyser, "version", "geyser.commands.version.desc", "geyser.command.version"));
