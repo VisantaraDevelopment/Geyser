@@ -51,7 +51,9 @@ import org.geysermc.geyser.command.defaults.ExtensionsCommand;
 import org.geysermc.geyser.command.defaults.GameruleCommand;
 import org.geysermc.geyser.command.defaults.HelpCommand;
 import org.geysermc.geyser.command.defaults.ListCommand;
+import org.geysermc.geyser.command.defaults.MappingsReloadCommand;
 import org.geysermc.geyser.command.defaults.OffhandCommand;
+import org.geysermc.geyser.command.defaults.PackReloadCommand;
 import org.geysermc.geyser.command.defaults.PingCommand;
 import org.geysermc.geyser.command.defaults.QuickActionsCommand;
 import org.geysermc.geyser.command.defaults.ReloadCommand;
@@ -172,6 +174,9 @@ public class CommandRegistry implements EventRegistrar {
         registerBuiltInCommand(new CustomOptionsCommand("options", "geyser.commands.options.desc", "geyser.command.options"));
         registerBuiltInCommand(new QuickActionsCommand("quickactions", "geyser.commands.quickactions.desc", "geyser.command.quickactions"));
         registerBuiltInCommand(new GameruleCommand("gamerules", "geyser.commands.gamerules.desc", "geyser.command.gamerules"));
+
+        registerBuiltInCommand(new PackReloadCommand(geyser, "packreload", "geyser.commands.pack-reload.desc", "geyser.command.reload"));
+        registerBuiltInCommand(new MappingsReloadCommand(geyser, "mappingsreload", "geyser.commands.mappings-reload.desc", "geyser.command.reload"));
 
         if (this.geyser.platformType() == PlatformType.STANDALONE) {
             registerBuiltInCommand(new StopCommand(geyser, "stop", "geyser.commands.stop.desc", "geyser.command.stop"));
