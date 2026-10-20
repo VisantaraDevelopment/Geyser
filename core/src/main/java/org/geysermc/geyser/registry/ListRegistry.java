@@ -134,6 +134,14 @@ public class ListRegistry<M> extends Registry<List<M>> implements Iterable<M> {
     }
 
     /**
+     * Replaces this registry with a mutable copy of the given entries, allowing it to be populated again.
+     */
+    public void reset(List<M> entries) {
+        this.mappings = new ArrayList<>(entries);
+        this.frozen = false;
+    }
+
+    /**
      * Creates a new array registry with the given {@link RegistryLoader}. The
      * input type is not specified here, meaning the loader return type is either
      * predefined, or the registry is populated at a later point.

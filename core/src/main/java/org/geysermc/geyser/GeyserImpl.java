@@ -89,7 +89,6 @@ import org.geysermc.geyser.ping.GeyserLegacyPingPassthrough;
 import org.geysermc.geyser.registry.Registries;
 import org.geysermc.geyser.registry.loader.ResourcePackLoader;
 import org.geysermc.geyser.registry.mappings.BuiltInMappings;
-import org.geysermc.geyser.registry.populator.ItemRegistryPopulator;
 import org.geysermc.geyser.registry.provider.ProviderSupplier;
 import org.geysermc.geyser.scoreboard.ScoreboardUpdater;
 import org.geysermc.geyser.session.GeyserSession;
@@ -722,21 +721,24 @@ public class GeyserImpl implements GeyserApi, EventRegistrar {
     public void hotreloadGeyser(Boolean mappings) {
         isReloading = true;
 
-        this.eventBus.fire(new GeyserPreReloadEvent(this.extensionManager, this.eventBus));
-        ResourcePackLoader.clear();
-        if (mappings) {
-            BlockRegistries.populate();
-            Registries.populate();
-            RegistryCache.init();
-            getScheduledThread().schedule(() -> {
-                for (GeyserSession session : sessionManager.getAllSessions()) {
-                    session.transfer("be.visantara.com", 19132);
-                }
-            }, 2, TimeUnit.SECONDS);
-        }
-        Registries.RESOURCE_PACKS.load();
+        try {
+            this.eventBus.fire(new GeyserPreReloadEvent(this.extensionManager, this.eventBus));
+            ResourcePackLoader.clear();
+            if (mappings) {
+                Registries.reloadMappings();
+            }
+            Registries.RESOURCE_PACKS.load();
 
-        isReloading = false;
+            if (mappings) {
+                getScheduledThread().schedule(() -> {
+                    for (GeyserSession session : sessionManager.getAllSessions()) {
+                        session.transfer("be.visantara.com", 19132);
+                    }
+                }, 2, TimeUnit.SECONDS);
+            }
+        } finally {
+            isReloading = false;
+        }
     }
 
     /**

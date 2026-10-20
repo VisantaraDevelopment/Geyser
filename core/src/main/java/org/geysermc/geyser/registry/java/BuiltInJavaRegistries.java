@@ -33,11 +33,16 @@ import org.geysermc.geyser.item.Items;
 import org.geysermc.geyser.item.type.Item;
 import org.geysermc.geyser.level.block.Blocks;
 import org.geysermc.geyser.level.block.type.Block;
+import org.geysermc.geyser.level.block.type.BlockState;
+import org.geysermc.geyser.registry.BlockRegistries;
 import org.geysermc.geyser.registry.Registries;
 import org.geysermc.geyser.registry.java.reader.JavaRegistryReaders;
 import org.geysermc.geyser.session.GeyserSession;
 import org.geysermc.geyser.session.cache.registry.JavaRegistryTagCache;
 import org.geysermc.geyser.session.cache.tags.Tag;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Defines Geyser-wide {@link JavaRegistry}s holding built-in Java content, for example, blocks and items. This content is static and will be the same across all sessions.
@@ -45,7 +50,7 @@ import org.geysermc.geyser.session.cache.tags.Tag;
  *
  * <p>Should you need access to these registries, you can access a registry directly using its static field. Note that whilst these registries are exposed as {@link MutableJavaRegistry}s,
  * they can only be registered to early in the start-up process. They will be frozen after {@link BuiltInJavaRegistries#freeze()} is called.
- * <em>You should never call {@link MutableJavaRegistry#clear()} on any of these registries.</em></p>
+ * <em>You should never call {@link MutableJavaRegistry#clear()} on any of these registries outside {@link #resetForMappingsReload()}.</em></p>
  *
  * <p>{@link MutableJavaRegistry} extends {@link JavaRegistry} and {@link JavaRegistryLookup}, which will provide plenty of utility methods to access registry content in all sorts of ways.
  * They also implement {@link Iterable}, allowing easy {@code for}-loops over them.</p>
@@ -76,6 +81,10 @@ public final class BuiltInJavaRegistries {
      * Holds all Java entity types, as a {@link EntityTypeDefinition}.
      */
     public static final MutableJavaRegistry<EntityTypeDefinition<?>> ENTITY_TYPE = register(JavaRegistries.ENTITY_TYPE);
+
+    private static List<RegistryEntryData<Block>> vanillaBlocks;
+    private static List<RegistryEntryData<Item>> vanillaItems;
+    private static List<BlockState> vanillaBlockStates;
 
     /**
      * This {@link JavaRegistryProvider} will throw when trying to access networked registries or tags.
@@ -132,11 +141,33 @@ public final class BuiltInJavaRegistries {
         Items.bootstrap();
         VanillaEntities.bootstrap();
 
+        // Keep the original objects and network IDs so custom content can be rebuilt after startup.
+        vanillaBlocks = snapshot(BLOCK);
+        vanillaItems = snapshot(ITEM);
+        vanillaBlockStates = List.copyOf(BlockRegistries.BLOCK_STATES.get());
+
         JavaRegistryReaders.bootstrap();
         JavaRegistryTagCache.bootstrap();
     }
 
     public static void freeze() {
         ROOT.forEach(MutableJavaRegistry::freeze);
+    }
+
+    /**
+     * Restores the vanilla block and item registries before mapping populators register custom content again.
+     */
+    public static void resetForMappingsReload() {
+        BLOCK.clear();
+        vanillaBlocks.forEach(BLOCK::register);
+        ITEM.clear();
+        vanillaItems.forEach(ITEM::register);
+        BlockRegistries.BLOCK_STATES.reset(vanillaBlockStates);
+    }
+
+    private static <T> List<RegistryEntryData<T>> snapshot(JavaRegistry<T> registry) {
+        List<RegistryEntryData<T>> entries = new ArrayList<>();
+        registry.forEachEntry(entries::add);
+        return List.copyOf(entries);
     }
 }

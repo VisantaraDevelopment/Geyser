@@ -36,6 +36,7 @@ import org.cloudburstmc.nbt.NbtMapBuilder;
 import org.cloudburstmc.protocol.bedrock.data.biome.BiomeDefinitions;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
 import org.geysermc.geyser.GeyserImpl;
+import org.geysermc.geyser.api.block.custom.CustomBlockData;
 import org.geysermc.geyser.api.util.Identifier;
 import org.geysermc.geyser.api.waypoint.CustomWaypointStyle;
 import org.geysermc.geyser.entity.BedrockEntityDefinition;
@@ -279,5 +280,31 @@ public final class Registries {
 
         // Freeze registries holding built-in Java Edition content (populators may have registered custom content)
         BuiltInJavaRegistries.freeze();
+    }
+
+    /**
+     * Rebuilds block and item mappings without repeating startup-only packet and entity registration.
+     */
+    public static void reloadMappings() {
+        BuiltInJavaRegistries.resetForMappingsReload();
+        BlockRegistries.BLOCKS.get().clear();
+        BlockRegistries.JAVA_BLOCK_STATE_IDENTIFIER_TO_ID.get().clear();
+        BlockRegistries.NON_VANILLA_BLOCK_IDS.get().clear();
+        BlockRegistries.WATERLOGGED.get().clear();
+        BlockRegistries.CUSTOM_BLOCKS.set(new CustomBlockData[0]);
+        BlockRegistries.CUSTOM_BLOCK_STATE_OVERRIDES.get().clear();
+        BlockRegistries.NON_VANILLA_BLOCK_STATE_OVERRIDES.get().clear();
+        BlockRegistries.CUSTOM_BLOCK_ITEM_OVERRIDES.get().clear();
+        ITEMS.get().clear();
+        TAGS.get().clear();
+
+        try {
+            BlockRegistries.populate();
+            ItemRegistryPopulator.populate();
+            TagRegistryPopulator.populate();
+        } finally {
+            BlockRegistries.BLOCK_STATES.freeze();
+            BuiltInJavaRegistries.freeze();
+        }
     }
 }
