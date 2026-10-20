@@ -22,10 +22,12 @@ include(":spigot")
 include(":velocity")
 include(":common")
 include(":core")
+include(":standalone")
 
 // Specify project dirs
 project(":spigot").projectDir = file("bootstrap/spigot")
 project(":velocity").projectDir = file("bootstrap/velocity")
+project(":standalone").projectDir = file("bootstrap/standalone")
 
 // Allow to download JVMs for toolchains
 plugins {
