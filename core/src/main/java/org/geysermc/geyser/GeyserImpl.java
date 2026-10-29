@@ -445,6 +445,17 @@ public class GeyserImpl implements GeyserApi, EventRegistrar {
             }
         }
 
+        String stunDiscoveryProperty = System.getProperty("geyserStunDiscovery", "");
+        if (!stunDiscoveryProperty.isEmpty()) {
+            if (stunDiscoveryProperty.equalsIgnoreCase("true") || stunDiscoveryProperty.equalsIgnoreCase("false")) {
+                boolean stunDiscovery = Boolean.parseBoolean(stunDiscoveryProperty);
+                config.bedrock().signaling().stunDiscovery(stunDiscovery);
+                logger.info("STUN discovery set from system property: " + stunDiscovery);
+            } else {
+                logger.error("Invalid STUN discovery from system property: " + stunDiscoveryProperty + "! Use \"true\" or \"false\". Defaulting to configured STUN discovery.");
+            }
+        }
+
         // The explicit WebRTC port property always wins. Without it, and with only NetherNet, WebRTC is the only
         // UDP service, so it follows the UDP port property; with "both", RakNet keeps that port.
         int webrtcPort = portProperty("geyserWebrtcPort", "NetherNet (WebRTC)", logger);
@@ -499,6 +510,9 @@ public class GeyserImpl implements GeyserApi, EventRegistrar {
         } else {
             logger.debug("Epoll is not available; Erosion's Unix socket handling will not work.");
         }
+
+        // On reload, the new NetherNet server needs what the old provider holds until it stops
+        runIfNonNull(netherNetServer, NetherNetServer::awaitShutdown);
 
         // RakNet takes the UDP side of the Bedrock port; NetherNet signaling its TCP side, and WebRTC
         // the UDP side too if RakNet is not running
